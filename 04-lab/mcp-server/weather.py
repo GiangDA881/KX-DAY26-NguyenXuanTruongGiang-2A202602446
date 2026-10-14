@@ -61,7 +61,21 @@ async def get_current_weather(city: str) -> str:
 
     if not data:
         if not API_KEY:
-            return f"❌ WeatherAPI key not configured. Please set WEATHERAPI_KEY environment variable with your API key from weatherapi.com"
+            print(f"ℹ️  [Mock Mode] Using simulated weather for {city} (set WEATHERAPI_KEY for live data)")
+            return f"""
+Current Weather for {city.title()}, Local Region, Vietnam:
+
+Temperature: 29.0°C (84.2°F)
+Feels like: 32.0°C (89.6°F)
+Condition: Partly Cloudy
+Humidity: 80%
+Wind: 12.0 km/h (7.5 mph) ESE
+Pressure: 1012 mb
+UV Index: 6
+Visibility: 10.0 km
+
+Last updated: Just now (Simulated)
+"""
         return f"Unable to fetch current weather data for {city}. Please check the city name and API key configuration."
 
     current = data["current"]
@@ -104,7 +118,25 @@ async def get_forecast(city: str, days: int = 3) -> str:
 
     if not data:
         if not API_KEY:
-            return f"❌ WeatherAPI key not configured. Please set WEATHERAPI_KEY environment variable with your API key from weatherapi.com"
+            print(f"ℹ️  [Mock Mode] Using simulated forecast for {city} (set WEATHERAPI_KEY for live data)")
+            return f"""Weather Forecast for {city.title()}, Vietnam (Simulated):
+
+2026-10-15:
+High: 31.0°C (87.8°F)
+Low: 24.0°C (75.2°F)
+Condition: Partly cloudy with chance of rain
+Chance of Rain: 40%
+Max Wind: 15.0 km/h
+UV Index: 6
+---
+2026-10-16:
+High: 30.0°C (86.0°F)
+Low: 23.5°C (74.3°F)
+Condition: Scattered showers
+Chance of Rain: 75%
+Max Wind: 18.0 km/h
+UV Index: 5
+"""
         return f"Unable to fetch forecast data for {city}. Please check the city name and API key configuration."
 
     location = data["location"]
@@ -143,8 +175,9 @@ if __name__ == "__main__":
     
     is_cloud_run = bool(os.getenv("PORT"))
     is_standalone = len(sys.argv) == 1 and sys.stdin.isatty()
+    is_stdio = "--stdio" in sys.argv
     
-    if is_cloud_run or is_standalone:
+    if is_cloud_run or is_standalone or not is_stdio:
         print(f"🚀 Starting MCP server on http://0.0.0.0:{port}/mcp")
         mcp.run(transport="streamable-http")
     else:
